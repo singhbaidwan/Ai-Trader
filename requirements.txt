@@ -2,3 +2,5 @@ langchain
 langchain-community
 openai
 pydantic
+python-dotenv
+langchain-google-genai
