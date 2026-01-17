@@ -4,3 +4,9 @@ openai
 pydantic
 python-dotenv
 langchain-google-genai
+tenacity
+bs4
+ipdb
+requests
+duckduckgo-search
+ddgs
