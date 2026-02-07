@@ -11,3 +11,6 @@ requests
 duckduckgo-search
 ddgs
 pandas
+openai
+yfinance
+stockstats
