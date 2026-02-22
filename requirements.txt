@@ -14,3 +14,4 @@ pandas
 openai
 yfinance
 stockstats
+rank_bm25
