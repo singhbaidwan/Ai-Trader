@@ -8,7 +8,7 @@ from typing import Dict, Any, Tuple, List, Optional
 
 from langgraph.prebuilt import ToolNode
 
-from tradingAgents.llm_clients import create_llm_client
+from tradingAgents.llm_client.factory import create_llm_client
 
 from tradingAgents.agents import *
 from tradingAgents.default_config import DEFAULT_CONFIG

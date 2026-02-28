@@ -3,7 +3,7 @@ from typing import Any, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from .base_client import BaseLLMClient
-from .validators import validate_model
+from .validator import validate_model
 
 
 class NormalizedChatGoogleGenerativeAI(ChatGoogleGenerativeAI):

@@ -1,8 +1,11 @@
 langchain
 langchain-community
+langgraph
 openai
 pydantic
+typing-extensions
 python-dotenv
+python-dateutil
 langchain-google-genai
 tenacity
 bs4
@@ -11,8 +14,8 @@ requests
 duckduckgo-search
 ddgs
 pandas
-openai
 yfinance
 stockstats
+tqdm
 rank_bm25
 langchain_openai

@@ -3,7 +3,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import yfinance as yf
 import os
-from .stockstats_utils import StockstatsUtils
+from .stockstats_util import StockstatsUtils
 
 def get_YFin_data_online(
     symbol: Annotated[str, "ticker symbol of the company"],
