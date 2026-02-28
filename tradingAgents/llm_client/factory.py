@@ -1,0 +1,32 @@
+from typing import Optional
+
+from .base_client import BaseLLMClient
+from .google_client import GoogleClient 
+
+
+def create_llm_client(
+    provider: str,
+    model: str,
+    base_url: Optional[str] = None,
+    **kwargs,
+) -> BaseLLMClient:
+    """Create an LLM client for the specified provider.
+
+    Args:
+        provider: LLM provider (openai, anthropic, google, xai, ollama, openrouter)
+        model: Model name/identifier
+        base_url: Optional base URL for API endpoint
+        **kwargs: Additional provider-specific arguments
+
+    Returns:
+        Configured BaseLLMClient instance
+
+    Raises:
+        ValueError: If provider is not supported
+    """
+    provider_lower = provider.lower()
+
+    if provider_lower == "google":
+        return GoogleClient(model, base_url, **kwargs)
+
+    raise ValueError(f"Unsupported LLM provider: {provider}")
