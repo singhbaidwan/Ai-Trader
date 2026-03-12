@@ -144,6 +144,10 @@ class TradingAgentsGraph:
             reasoning_effort = self.config.get("openai_reasoning_effort")
             if reasoning_effort:
                 kwargs["reasoning_effort"] = reasoning_effort
+        elif provider in ("local", "ollama"):
+            local_api_key = self.config.get("local_api_key")
+            if local_api_key:
+                kwargs["api_key"] = local_api_key
 
         return kwargs
 

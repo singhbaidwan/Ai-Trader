@@ -9,10 +9,12 @@ DEFAULT_CONFIG = {
         "dataflows/data_cache",
     ),
     # LLM settings
-    "llm_provider": "openai",
-    "deep_think_llm": "o4-mini",
-    "quick_think_llm": "gpt-4o-mini",
-    "backend_url": "https://api.openai.com/v1",
+    "llm_provider": "local",
+    "deep_think_llm": "llama3.2:3b",
+    "quick_think_llm": "llama3.2:3b",
+    "backend_url": "http://127.0.0.1:11434/v1",
+    # Local OpenAI-compatible endpoint for Ollama or vLLM
+    "local_api_key": "ollama",
     # Debate and discussion settings
     "max_debate_rounds": 1,
     "max_risk_discuss_rounds": 1,
