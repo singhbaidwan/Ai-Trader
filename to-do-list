@@ -1,0 +1,68 @@
+**Advanced Feature Roadmap (for this codebase)**
+
+1. **Portfolio-Level Multi-Asset Orchestrator**
+- Run the full agent graph across a watchlist (not just one ticker) and allocate capital by conviction/risk budget.
+- Why it fits: current pipeline is single-symbol (`main.py` fixed to NVDA), but your graph output is already structured for scoring.
+- MVP: `--tickers NVDA,MSFT,TSLA` + position sizing layer + ranked output table.
+
+2. **Backtesting and Walk-Forward Evaluation Engine**
+- Replay historical dates, run decisions day-by-day, track PnL, hit-rate, drawdown, Sharpe, turnover.
+- Why it fits: `trade_date` exists, reflection/memory exists, and you already log state.
+- MVP: backtest runner that calls `propagate(ticker, date)` over date ranges and saves metrics CSV/JSON.
+
+3. **Confidence-Weighted Ensemble Decision Layer**
+- Add confidence and uncertainty scoring from each analyst and manager node.
+- Final trade decision becomes: signal + confidence + rationale quality score.
+- MVP: standard schema `{decision, confidence, risk_level}` and weighted vote rules before final output.
+
+4. **RAG Memory Upgrade (from BM25 to Hybrid)**
+- Keep BM25 but add embeddings + recency weighting + outcome weighting (profit/loss impact).
+- Why it fits: current memory is lexical only; easy to miss semantically similar scenarios.
+- MVP: hybrid retrieval (`bm25_score + embedding_score + recency_decay`) for `get_memories()`.
+
+5. **Risk Engine with Hard Constraints**
+- Add explicit portfolio/risk constraints: max position size, sector caps, stop-loss/TP logic, volatility targeting.
+- Why it fits: current risk discussion is narrative-heavy; convert to enforceable risk policy.
+- MVP: post-decision validator that can override BUY/SELL into HOLD when constraints fail.
+
+6. **Live Trading Adapter Layer (Paper + Broker)**
+- Add broker integration (paper first) and order lifecycle tracking.
+- Why it fits: current output is advisory only; this makes it operational.
+- MVP: abstract execution interface + paper broker simulator + order journal.
+
+7. **Event-Driven Mode (Realtime Triggers)**
+- Trigger analysis on events: price shock, earnings, volume anomaly, breaking news.
+- Why it fits: you already have dataflow connectors; just need scheduling/trigger logic.
+- MVP: scheduler + trigger rules + queue for re-analysis jobs.
+
+8. **Cost/Latency Optimizer for LLM Calls**
+- Route quick tasks to small models, only escalate to larger model for disputed/low-confidence cases.
+- Why it fits: multi-agent architecture can get expensive and slow.
+- MVP: policy-based model router by node type and uncertainty threshold.
+
+9. **Experiment Tracking + Prompt Versioning**
+- Track runs with config hash, prompt version, model version, data vendor, and resulting metrics.
+- Why it fits: essential for iterative improvement and reproducibility.
+- MVP: run registry in SQLite/JSONL + CLI compare command.
+
+10. **Operator Dashboard (Local Web UI)**
+- Visualize debate traces, decisions, confidence, risk checks, and backtest curves.
+- Why it fits: your logs are rich; a UI turns this into a usable research platform.
+- MVP: Streamlit/FastAPI page with run history + decision drill-down.
+
+---
+
+**What to build first (high ROI order)**
+1. Backtesting engine  
+2. Confidence + risk constraint layer  
+3. Portfolio orchestrator  
+4. Hybrid memory  
+5. Live/paper trading adapter
+
+---
+
+**Important foundation fixes before advanced work**
+- `RiskDebateState` schema mismatches current runtime keys in [`agent_states.py`](/Users/dalveersingh/Downloads/Code/Agents/AiTrader/tradingAgents/agents/utils/agent_states.py) vs [`propogation.py`](/Users/dalveersingh/Downloads/Code/Agents/AiTrader/tradingAgents/graph/propogation.py).
+- `main.py` is hardcoded to one ticker/date; convert to CLI/config-driven runner.
+- Add test coverage for graph state transitions and vendor routing fallback.
+
