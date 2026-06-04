@@ -108,6 +108,49 @@ export async function fetchNews(ticker: string): Promise<NewsItem[]> {
   }
 }
 
+function mapBackendAnalysis(data: any): AgentAnalysis {
+  return {
+    ticker: data.ticker || "",
+    tradeDate: data.trade_date || new Date().toISOString().split("T")[0],
+    signal: data.signal || "HOLD",
+    // These attributes are dummy/missing from backend endpoint:
+    confidence: 0,
+    aiScore: 0,
+    riskScore: 0,
+    riskTone: "Moderate",
+    sentiment: "Mixed",
+    
+    marketReport: data.market_report || "",
+    sentimentReport: data.sentiment_report || "",
+    newsReport: data.news_report || "",
+    fundamentalsReport: data.fundamentals_report || "",
+    
+    investmentDebate: {
+      bullHistory: data.investment_debate_state?.bull_history || "",
+      bearHistory: data.investment_debate_state?.bear_history || "",
+      history: data.investment_debate_state?.history || "",
+      currentResponse: data.investment_debate_state?.current_response || "",
+      judgeDecision: data.investment_debate_state?.judge_decision || "",
+      count: data.investment_debate_state?.count || 0,
+    },
+    investmentPlan: data.investment_plan || "",
+    traderPlan: data.trader_investment_plan || "",
+    
+    riskDebate: {
+      aggressiveHistory: data.risk_debate_state?.aggressive_history || "",
+      conservativeHistory: data.risk_debate_state?.conservative_history || "",
+      neutralHistory: data.risk_debate_state?.neutral_history || "",
+      history: data.risk_debate_state?.history || "",
+      judgeDecision: data.risk_debate_state?.judge_decision || "",
+      count: data.risk_debate_state?.count || 0,
+    },
+    finalDecision: data.final_trade_decision || "",
+    
+    debateTrace: [],
+    timestamp: new Date().toISOString(),
+  };
+}
+
 // ── Full Agent Analysis (blocking) ──
 
 export async function analyzeStock(
@@ -115,12 +158,13 @@ export async function analyzeStock(
   tradeDate?: string
 ): Promise<AgentAnalysis> {
   try {
-    return await request<AgentAnalysis>(`/analyze/${ticker.toUpperCase()}`, {
+    const data = await request<any>(`/analyze/${ticker.toUpperCase()}`, {
       method: "POST",
       body: JSON.stringify({
         trade_date: tradeDate || new Date().toISOString().split("T")[0],
       }),
     });
+    return mapBackendAnalysis(data);
   } catch {
     // Return a mock analysis
     return getMockAnalysis(ticker);
@@ -149,7 +193,11 @@ export function streamAnalysis(
         callbacks.onEvent(data);
 
         if (data.type === "analysis_complete" && data.data) {
-          callbacks.onComplete(data.data as AgentAnalysis);
+          let parsedData = data.data;
+          if (typeof parsedData === "string") {
+            try { parsedData = JSON.parse(parsedData); } catch(e){}
+          }
+          callbacks.onComplete(mapBackendAnalysis(parsedData));
           eventSource?.close();
         }
       } catch (e) {

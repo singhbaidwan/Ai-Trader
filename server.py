@@ -317,8 +317,8 @@ async def analyze_ticker_stream(ticker: str, request: Request, trade_date: Optio
                 agent_name = _infer_agent_name(chunk)
                 phase = _infer_phase(agent_name)
 
-                _emit(event_queue, "agent_complete", agent_name, phase,
-                      f"Agent '{agent_name}' completed.")
+                content = _extract_agent_content(chunk, agent_name)
+                _emit(event_queue, "agent_complete", agent_name, phase, content)
                 # Accumulate state across all chunks
                 for key, value in chunk.items():
                     if isinstance(value, dict):
@@ -364,6 +364,37 @@ async def analyze_ticker_stream(ticker: str, request: Request, trade_date: Optio
         if keys:
             return keys[0]
         return "unknown"
+
+    def _extract_agent_content(chunk: Dict[str, Any], agent_name: str) -> str:
+        """Extract the most relevant content/report produced by this agent from the chunk."""
+        node_data = chunk.get(agent_name, {})
+        if not isinstance(node_data, dict):
+            return str(node_data) if node_data else f"Agent '{agent_name}' completed."
+        
+        # Look for typical report/plan keys
+        report_keys = [
+            "market_report", "sentiment_report", "news_report", "fundamentals_report",
+            "investment_plan", "trader_investment_plan", "final_trade_decision"
+        ]
+        for k in report_keys:
+            if k in node_data and node_data[k]:
+                return str(node_data[k])
+                
+        # Look for debate states
+        invest_debate = node_data.get("investment_debate_state", {})
+        if isinstance(invest_debate, dict) and invest_debate.get("current_response"):
+            return str(invest_debate.get("current_response"))
+            
+        risk_debate = node_data.get("risk_debate_state", {})
+        if isinstance(risk_debate, dict):
+            if risk_debate.get("current_risky_response") and ("risky" in agent_name.lower() or "aggressive" in agent_name.lower()):
+                return str(risk_debate.get("current_risky_response"))
+            elif risk_debate.get("current_safe_response") and ("safe" in agent_name.lower() or "conservative" in agent_name.lower()):
+                return str(risk_debate.get("current_safe_response"))
+            elif risk_debate.get("current_neutral_response") and "neutral" in agent_name.lower():
+                return str(risk_debate.get("current_neutral_response"))
+                
+        return f"Agent '{agent_name}' completed."
 
     def _infer_phase(agent_name: str) -> str:
         """Map agent names to high-level pipeline phases."""
@@ -444,23 +475,31 @@ async def get_quote(ticker: str) -> Dict[str, Any]:
                 "volume": int(row.get("Volume", 0)),
             }
 
+        officers = info.get("companyOfficers", [])
+        ceo = officers[0].get("name", "N/A") if officers else "N/A"
+        
+        location_parts = [info.get("city"), info.get("state"), info.get("country")]
+        headquarters = ", ".join([p for p in location_parts if p]) or "N/A"
+
         return {
             "ticker": ticker.upper(),
             "price": round(price, 2),
             "change": round(change, 2),
-            "change_percent": round(change_pct, 2),
+            "changePercent": round(change_pct, 2),
             **latest,
-            "market_cap": info.get("marketCap"),
-            "pe_ratio": info.get("trailingPE"),
-            "forward_pe": info.get("forwardPE"),
-            "dividend_yield": info.get("dividendYield"),
-            "52w_high": info.get("fiftyTwoWeekHigh"),
-            "52w_low": info.get("fiftyTwoWeekLow"),
-            "avg_volume": info.get("averageVolume"),
-            "name": info.get("shortName", ticker.upper()),
+            "marketCap": info.get("marketCap"),
+            "peRatio": info.get("trailingPE"),
+            "forwardPe": info.get("forwardPE"),
+            "dividendYield": info.get("dividendYield"),
             "sector": info.get("sector", "N/A"),
             "industry": info.get("industry", "N/A"),
             "exchange": info.get("exchange", "N/A"),
+            "website": info.get("website", "N/A"),
+            "about": info.get("longBusinessSummary", "N/A"),
+            "ceo": ceo,
+            "employees": info.get("fullTimeEmployees", "N/A"),
+            "headquarters": headquarters,
+            "name": info.get("shortName", ticker.upper()),
         }
     except Exception as exc:
         traceback.print_exc()
