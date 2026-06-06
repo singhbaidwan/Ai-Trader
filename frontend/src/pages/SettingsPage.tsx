@@ -14,7 +14,7 @@ const DATA_VENDOR_OPTIONS = ["yfinance", "alpha_vantage"];
 
 const defaultConfig: AppConfig = {
   llmProvider: "local",
-  modelName: "llama3.2:3b",
+  modelName: "llama3.2:1b",
   baseUrl: "http://127.0.0.1:11434/v1",
   apiKey: "",
   maxDebateRounds: 1,

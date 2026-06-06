@@ -21,12 +21,23 @@ if [ -f .app-pids ]; then
     # Clean up node/vite processes just in case
     pkill -f "vite"
     
+    # Stop Ollama if we started it
+    if [ -f .ollama-pid ]; then
+        OLLAMA_PID=$(cat .ollama-pid)
+        if kill -0 $OLLAMA_PID 2>/dev/null; then
+            kill $OLLAMA_PID
+            echo "Stopped Ollama (PID: $OLLAMA_PID)"
+        fi
+        rm .ollama-pid
+    fi
+
     rm .app-pids
     echo "AiTrader stopped."
 else
     echo "No .app-pids file found. Is the app running?"
     # Cleanup anyway just in case
-    pkill -f "uvicorn server:app"
+    pkill -f "venv/bin/uvicorn server:app"
     pkill -f "vite"
+    pkill -f "ollama serve"
     echo "Force stopped related processes."
 fi

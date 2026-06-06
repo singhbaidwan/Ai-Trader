@@ -65,8 +65,8 @@ except ImportError:
     HAS_PIPELINE = False
     DEFAULT_CONFIG = {
         "llm_provider": "local",
-        "deep_think_llm": "llama3.2:3b",
-        "quick_think_llm": "llama3.2:3b",
+        "deep_think_llm": "llama3.2:1b",
+        "quick_think_llm": "llama3.2:1b",
         "backend_url": "http://127.0.0.1:11434/v1",
         "max_debate_rounds": 1,
         "max_risk_discuss_rounds": 1,
@@ -260,6 +260,7 @@ async def analyze_ticker(ticker: str, body: Optional[AnalyzeRequest] = None) -> 
     trade_date_str: str = (body.trade_date if body and body.trade_date else date.today().isoformat())
 
     try:
+        print("CURRENT CONFIG LLM PROVIDER:", _current_config.get("llm_provider"))
         ta = TradingAgentsGraph(debug=True, config=_current_config)
         final_state, decision = ta.propagate(ticker, trade_date_str)
         return _extract_state_payload(final_state, decision)

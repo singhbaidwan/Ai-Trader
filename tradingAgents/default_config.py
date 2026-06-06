@@ -10,8 +10,8 @@ DEFAULT_CONFIG = {
     ),
     # LLM settings
     "llm_provider": "local",
-    "deep_think_llm": "llama3.2:3b",
-    "quick_think_llm": "llama3.2:3b",
+    "deep_think_llm": "llama3.2:1b",
+    "quick_think_llm": "llama3.2:1b",
     "backend_url": "http://127.0.0.1:11434/v1",
     # Local OpenAI-compatible endpoint for Ollama or vLLM
     "local_api_key": "ollama",

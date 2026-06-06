@@ -1,0 +1,9 @@
+event: phase_start
+data: {"type": "phase_start", "agent": "initialization", "phase": "research", "content": "Initializing TradingAgents pipeline\u2026", "timestamp": "2026-06-04T22:09:29.852608"}
+
+event: phase_start
+data: {"type": "phase_start", "agent": "research", "phase": "research", "content": "Starting analyst research phase\u2026", "timestamp": "2026-06-04T22:09:29.903220"}
+
+event: agent_complete
+data: {"type": "agent_complete", "agent": "company_of_interest", "phase": "processing", "content": "AAPL", "timestamp": "2026-06-04T22:09:29.904124"}
+
